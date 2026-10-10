@@ -16,3 +16,6 @@ __pycache__/
 
 # Docs folder
 /docs/
+
+# Node modules
+node_modules/
