@@ -5,5 +5,9 @@ __pycache__/
 # Pytest cache
 .pytest_cache/
 
+# macOS
+.DS_Store
+**/.DS_Store
+
 # Docs folder
 /docs/
