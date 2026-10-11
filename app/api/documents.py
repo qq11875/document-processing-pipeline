@@ -33,6 +33,9 @@ router = APIRouter(
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+MAX_UPLOAD_SIZE = 25 * 1024 * 1024  # 25 MB
+CHUNK_SIZE = 1024 * 1024  # 1 MB
+
 ALLOWED_TYPES = {
     DocumentType.PDF: "application/pdf",
     DocumentType.DOCX: (
@@ -70,11 +73,34 @@ async def upload_document(
     saved_file_path = UPLOAD_DIR / f"{document_id}{extension}"
 
     file_size = 0
+    CHUNK_SIZE = 1024 * 1024  # 1 MB
 
-    with open(saved_file_path, "wb") as f:
-        while content := await file.read(1024 * 1024):
-            f.write(content)
-            file_size += len(content)
+    try:
+
+        with open(saved_file_path, "wb") as f:
+            while content := await file.read(CHUNK_SIZE):
+                file_size += len(content)
+
+                if file_size > MAX_UPLOAD_SIZE:
+                    raise HTTPException(
+                        status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                        detail="File size exceeds the maximum limit of 25 MB.",
+                    )
+                
+                f.write(content)
+
+    except HTTPException:
+        saved_file_path.unlink(missing_ok=True)
+        raise
+    except Exception as e:
+        saved_file_path.unlink(missing_ok=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to save uploaded file.",
+        ) from e
+    finally:
+        await file.close()
+
 
     try:
         document_type = detector.detect(saved_file_path)
@@ -96,9 +122,17 @@ async def upload_document(
         file_size=file_size,
     )
 
-    session.add(document)
-    session.commit()
-    session.refresh(document)
+    try:
+        session.add(document)
+        session.commit()
+        session.refresh(document)
+    except Exception as e:
+        session.rollback()
+        saved_file_path.unlink(missing_ok=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to register uploaded document.",
+        ) from e
 
     background_tasks.add_task(process_document, document.id)
 

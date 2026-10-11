@@ -34,6 +34,12 @@ function App() {
   const selectedDocument =
     documents.find((item) => item.id === selectedDocumentId) ?? null;
 
+  const visibleContent =
+  selectedDocument?.status === "COMPLETED" &&
+  content?.id === selectedDocumentId
+    ? content
+    : null;
+
   const hasActiveDocuments = documents.some(
     (item) => item.status === "PENDING" || item.status === "PROCESSING",
   );
@@ -113,41 +119,39 @@ function App() {
 
   // Fetch the extracted content of the selected completed document.
   useEffect(() => {
-    if (
-      selectedDocumentId === null ||
-      selectedDocument?.status !== "COMPLETED"
-    ) {
-      setContent(null);
-      return;
-    }
+  if (
+    selectedDocumentId === null ||
+    selectedDocument?.status !== "COMPLETED"
+  ) {
+    return;
+  }
 
-    let cancelled = false;
-    setContent(null);
+  let cancelled = false;
 
-    async function loadContent() {
-      try {
-        const result = await getDocumentContent(selectedDocumentId!);
+  async function loadContent() {
+    try {
+      const result = await getDocumentContent(selectedDocumentId!);
 
-        if (!cancelled) {
-          setContent(result);
-        }
-      } catch (err: unknown) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Could not load extracted content.",
-          );
-        }
+      if (!cancelled) {
+        setContent(result);
+      }
+    } catch (err: unknown) {
+      if (!cancelled) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not load extracted content.",
+        );
       }
     }
+  }
 
-    void loadContent();
+  void loadContent();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedDocumentId, selectedDocument?.status]);
+  return () => {
+    cancelled = true;
+  };
+}, [selectedDocumentId, selectedDocument?.status]);
 
   async function handleUpload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -241,7 +245,7 @@ function App() {
 
           <DocumentDetails
             document={selectedDocument}
-            content={content}
+            content={visibleContent}
             onError={setError}
           />
         </section>

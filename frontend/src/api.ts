@@ -19,7 +19,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
                 message = body.detail;
             }
         } catch {
-
+            // Ignore JSON parsing errors and use the default message.
         }
 
         throw new Error(message);
@@ -57,7 +57,7 @@ export async function uploadDocument(file: File): Promise<DocumentResponse> {
 }
 
 export async function getDocumentContent(documentId: number): Promise<DocumentContentResponse> {
-    const response = await fetch(`${API_BASE_URL}/documents/${documentId}/content/`);
+    const response = await fetch(`${API_BASE_URL}/documents/${documentId}/content`);
 
     return parseResponse<DocumentContentResponse>(response);
 }
