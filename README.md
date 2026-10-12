@@ -1,3 +1,7 @@
+## Assessment Notes
+
+The brief written answers for this assessment are included in [`Brief_written_answer/Answers.md`](Brief_written_answer/Answers.md).
+
 # Document Processing Pipeline
 
 A full-stack document-processing application that supports PDF and DOCX uploads, text extraction, and OCR fallback for scanned PDFs. It provides a REST API and a React frontend for uploading documents, tracking processing status, and viewing extracted text.
