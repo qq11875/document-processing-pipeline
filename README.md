@@ -16,7 +16,7 @@ A full-stack document-processing application that supports PDF and DOCX uploads,
 ## Tech Stack
 
 **Backend**
-- Python
+- Python 3.10.8
 - FastAPI
 - SQLModel and SQLite
 - PyMuPDF for PDF processing
@@ -27,22 +27,38 @@ A full-stack document-processing application that supports PDF and DOCX uploads,
 - React
 - TypeScript
 - Vite
+- Node.js 22.23.3
+- npm 10.9.9
 
 ## Prerequisites
 
-Ensure the following are installed on your Mac:
+The application was developed and tested on macOS.
 
+Install the following:
+
+- Python 3.10.8
+- Node.js 22.23.3 and npm 10.9.9
 - Git
-- Python 3
-- Node.js and npm
 - Homebrew
+- Tesseract OCR 5.5.3
 
-Install Tesseract OCR using Homebrew:
+Other compatible versions may work, but the versions above reflect the development environment.
+
+### Install Tesseract OCR
+
+If Homebrew is installed, run:
 
 ```bash
 brew install tesseract
 ```
 
+Verify the installation:
+
+```bash
+tesseract --version
+```
+
+The application uses Tesseract for OCR-based extraction from scanned PDFs.
 ## Getting Started
 
 ### 1. Clone the repository
